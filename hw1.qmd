@@ -1,11 +1,11 @@
 ---
 title: "Homework 1"
-author: "[Insert your name here]{style='background-color: yellow;'}"
+author: "[Avi Singh]{style='background-color: yellow;'}"
 toc: true
 title-block-banner: true
 title-block-style: default
 format: html
-#format: pdf
+format: pdf
 ---
 
 [Link to the Github repository](https://github.com/STAT380/hw1.git)
@@ -116,6 +116,29 @@ For the following questions, provide your answers in a code cell.
 
 1. Sort the values of `my_vec_double` in ascending order. 
 
+```{r}
+typeof(my_vec)
+```
+
+```{r}
+my_vec_double <- as.double(my_vec) # Conversion of data type
+my_vec_int <- as.integer(my_vec)
+
+my_vec_double
+my_vec_int
+
+```
+```{r}
+my_vec_bool <- my_vec_double < 0
+sum(!my_vec_bool)
+
+```
+
+```{r}
+sort(my_vec_double, decreasing=FALSE)
+
+```
+
 
 <br><br><br><br>
 <br><br><br><br>
@@ -146,11 +169,29 @@ $$
 ## Tip
 
 Recall the discussion in class on how `R` fills in matrices
+
+```{R}
+library(tidyverse)
+library(kableExtra)
+A <- matrix(
+    1:9, nrow=3, byrow=TRUE
+)
+A %>% kable()
+```
+
+```{r}
+vals <- 1:100
+B <- matrix(
+    c(vals, vals^2), nrow=2, byrow=T
+)
+B %>% kable()
+```
+
 :::
 
 In the next part, we will discover how knowledge of the way in which a matrix is stored in memory can inform better code choices. To this end, the following function takes an input $n$ and creates an $n \times n$ matrix with random entries. 
 
-```{R}
+```{r}
 generate_matrix <- function(n){
     return(
         matrix(
@@ -163,14 +204,14 @@ generate_matrix <- function(n){
 
 For example:
 
-```{R}
+```{r}
 generate_matrix(4)
 ```
 
 
 Let `M` be a fixed $50 \times 50$ matrix
 
-```{R}
+```{r}
 M <- generate_matrix(50)
 mean(M)
 ```
@@ -178,16 +219,16 @@ mean(M)
 
 2. Write a function `row_wise_scan` which scans the entries of `M` one row after another and outputs the number of elements whose value is $\ge 0$. You can use the following **starter code**
 
-```R
+```{r}
 row_wise_scan <- function(x){
     n <- nrow(x)
     m <- ncol(x)
 
     # Insert your code here
     count <- 0
-    for(...){
-        for(...){
-            if(...){
+    for(i in 1:n){
+        for(j in 1:m){
+            if(x[i,j]>0){
                 count <- count + 1 
             }
         }
@@ -195,19 +236,32 @@ row_wise_scan <- function(x){
 
     return(count)
 }
+
+row_wise_scan(M)
 ```
 
 
 3. Similarly, write a function `col_wise_scan` which does exactly the same thing but scans the entries of `M` one column after another
 
-```R
+```{r}
 col_wise_scan <- function(x){
+    n <- nrow(x)
+    m <- ncol(x)
+
+    # Insert your code here
     count <- 0
-    
-    ... # Insert your code here
+    for(j in 1:m){
+        for(i in 1:n){
+            if(x[i,j]>0){
+                count <- count + 1 
+            }
+        }
+    }
 
     return(count)
 }
+
+col_wise_scan(M)
 ```
 You can check if your code is doing what it's supposed to using the function here[^footnote]
 
@@ -215,11 +269,11 @@ You can check if your code is doing what it's supposed to using the function her
 
 5. Write a function `time_scan` which takes in a method `f` and a matrix `M` and outputs the amount of time taken to run `f(M)`
 
-```R
+```{r}
 time_scan <- function(f, M){
-    initial_time <- ... # Write your code here
+    initial_time <- Sys.time() # Write your code here
     f(M)
-    final_time <- ...  # Write your code here
+    final_time <- Sys.time()  # Write your code here
     
     total_time_taken <- final_time - initial_time
     return(total_time_taken)
@@ -228,7 +282,7 @@ time_scan <- function(f, M){
 
 Provide your output to
 
-```R
+```{r}
 list(
     row_wise_time = time_scan(row_wise_scan, M),
     col_wise_time = time_scan(row_wise_scan, M)
@@ -236,12 +290,40 @@ list(
 ```
 Which took longer to run? 
 
+row_wise_time took longer to run
+
 6. Repeat this experiment now when:
     * `M` is a $100 \times 100$ matrix
     * `M` is a $1000 \times 1000$ matrix
     * `M` is a $5000 \times 5000$ matrix
+    
+```{r}
+M <- generate_matrix(100)
+list(
+    row_wise_time = time_scan(row_wise_scan, M),
+    col_wise_time = time_scan(col_wise_scan, M)
+)
+```
+
+```{r}
+M <- generate_matrix(1000)
+list(
+    row_wise_time = time_scan(row_wise_scan, M),
+    col_wise_time = time_scan(col_wise_scan, M)
+)
+```
+
+```{r}
+M <- generate_matrix(5000)
+list(
+    row_wise_time = time_scan(row_wise_scan, M),
+    col_wise_time = time_scan(col_wise_scan, M)
+)
+```
 
 What can you conclude?
+
+row_wise_scan consistently takes longer for larger values of M. The difference between row_wise_scan and col_wise_scan increases as M increases.
 
 <br><br><br><br>
 <br><br><br><br>
